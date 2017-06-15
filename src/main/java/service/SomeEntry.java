@@ -1,10 +1,18 @@
 package service;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class SomeEntry {
 
     private String _key;
     private String md5Key;
     private byte[] _value;
+
+    public SomeEntry(byte[] value, String key) {
+        _value = value;
+        _key = key;
+        md5Key = DigestUtils.md5Hex(key);
+    }
 
     public String getKey() {
         return _key;
@@ -29,7 +37,7 @@ public class SomeEntry {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return md5Key.hashCode();
     }
 
     @Override
