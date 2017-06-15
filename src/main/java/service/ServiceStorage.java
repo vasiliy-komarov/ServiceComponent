@@ -15,7 +15,7 @@ public class ServiceStorage implements Service {
     public byte[] get(String key) throws WrongKeyException, Exception {
         String newKey = ofNullable(key)
                 .map(String::trim)
-                .filter(s -> !s.isEmpty() && s.length() < 129)
+                .filter(s -> !s.isEmpty() || s.length() < 129)
                 .orElseThrow(WrongKeyException::new);
 
 //        readLock.lock();
