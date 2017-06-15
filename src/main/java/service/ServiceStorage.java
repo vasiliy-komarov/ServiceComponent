@@ -18,40 +18,12 @@ public class ServiceStorage implements Service {
                 .filter(s -> !s.isEmpty() || s.length() < 129)
                 .orElseThrow(WrongKeyException::new);
 
-//        readLock.lock();
-        try {
-            int hashCode = newKey.hashCode();
-        } catch (Exception e) {
-            throw e;
-        } finally {
-//            readLock.unlock();
-        }
         return new byte[1];
     }
 
     public void put(String key, byte[] data) throws WrongKeyException, Exception {
-//        writeLock.lock();
-
-        try {
-            int hashCode = key.hashCode();
-
-        } catch (Exception e) {
-
-        } finally {
-//            writeLock.unlock();
-        }
     }
 
     public void remove(String key) throws WrongKeyException, Exception {
-//        writeLock.lock();
-
-        try {
-            int hashCode = key.hashCode();
-
-        } catch (Exception e) {
-
-        } finally {
-//            writeLock.unlock();
-        }
     }
 }
