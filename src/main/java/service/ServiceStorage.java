@@ -5,19 +5,20 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static java.util.Optional.ofNullable;
+
 public class ServiceStorage implements Service {
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
-    public byte[] get(String key) throws BadKeyException, Exception {
+    public byte[] get(String key) throws WrongKeyException, Exception {
+        String newKey = ofNullable(key).map(String::trim).filter(s -> !s.isEmpty() && s.length() < 129).orElseThrow(WrongKeyException::new);
+
         readLock.lock();
-
-        Optional.ofNullable(key).filter(k -> !k.isEmpty()).orElseThrow(BadKeyException::new);
-
         try {
-            int hashCode = key.hashCode();
+            int hashCode = newKey.hashCode();
         } catch (Exception e) {
             throw e;
         } finally {
@@ -26,10 +27,8 @@ public class ServiceStorage implements Service {
         return new byte[1];
     }
 
-    public void put(String key, byte[] data) throws BadKeyException, Exception {
+    public void put(String key, byte[] data) throws WrongKeyException, Exception {
         writeLock.lock();
-
-        Optional.ofNullable(key).filter(k -> !k.isEmpty()).orElseThrow(BadKeyException::new);
 
         try {
             int hashCode = key.hashCode();
@@ -41,10 +40,8 @@ public class ServiceStorage implements Service {
         }
     }
 
-    public void remove(String key) throws BadKeyException, Exception {
+    public void remove(String key) throws WrongKeyException, Exception {
         writeLock.lock();
-
-        Optional.ofNullable(key).filter(k -> !k.isEmpty()).orElseThrow(BadKeyException::new);
 
         try {
             int hashCode = key.hashCode();
