@@ -24,14 +24,4 @@ public class SomeEntry {
         return _fileName;
     }
 
-    @Override
-    public int hashCode() {
-        return _fileName.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
 }

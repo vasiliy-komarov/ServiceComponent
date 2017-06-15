@@ -12,7 +12,7 @@ public class ServiceStorage implements Service {
 //    private final Lock readLock = readWriteLock.readLock();
 //    private final Lock writeLock = readWriteLock.writeLock();
 
-    private HashMap<String, String> keysMap = new HashMap<>();
+    private HashMap<String, SomeEntry> keysMap = new HashMap<>();
 
     public byte[] get(String key) throws WrongKeyException, FileNotFoundException, Exception {
         String newKey = assertKey(key);
@@ -29,7 +29,7 @@ public class ServiceStorage implements Service {
 
         String md5 = DigestUtils.md5Hex(newKey);
 
-        keysMap.put(newKey, md5);
+//        keysMap.put(newKey, md5);
     }
 
     public void remove(String key) throws WrongKeyException, FileNotFoundException, Exception {
