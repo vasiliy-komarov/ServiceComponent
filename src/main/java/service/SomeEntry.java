@@ -16,11 +16,7 @@ public class SomeEntry {
         return _key;
     }
 
-    public void setKey(String key) {
-        _key = key;
-    }
-
-    public void writeToFile() {
+    public void writeToFile(byte[] value) {
         // TODO LOCK
     }
 
