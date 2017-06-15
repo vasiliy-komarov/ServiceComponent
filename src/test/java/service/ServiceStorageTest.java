@@ -18,6 +18,18 @@ public class ServiceStorageTest {
     }
 
     @Test
+    public void testGetIfKeyLarge() throws Exception {
+        ServiceStorage storage = new ServiceStorage();
+        thrown.expect(WrongKeyException.class);
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 130; i++) {
+            builder.append(i);
+        }
+        storage.get(builder.toString());
+    }
+
+    @Test
     public void simpleSum() {
         assertEquals(2,2);
     }
