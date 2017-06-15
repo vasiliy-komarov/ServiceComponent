@@ -3,9 +3,6 @@ package service;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Optional.ofNullable;
 

@@ -5,13 +5,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class SomeEntry {
 
     private String _key;
-    private String md5Key;
+    private String _fileName;
     private byte[] _value;
 
-    public SomeEntry(byte[] value, String key) {
+    public SomeEntry(String key, byte[] value) {
         _value = value;
         _key = key;
-        md5Key = DigestUtils.md5Hex(key);
+        _fileName = DigestUtils.md5Hex(key);
     }
 
     public String getKey() {
@@ -34,19 +34,18 @@ public class SomeEntry {
         // TODO LOCK
     }
 
+    public String getFileName() {
+        return _fileName;
+    }
 
     @Override
     public int hashCode() {
-        return md5Key.hashCode();
+        return _fileName.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
-    }
-
-    public String getMd5Key() {
-        return md5Key;
     }
 
 }
