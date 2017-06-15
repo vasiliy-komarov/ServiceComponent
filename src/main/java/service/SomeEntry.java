@@ -6,10 +6,8 @@ public class SomeEntry {
 
     private String _key;
     private String _fileName;
-    private byte[] _value;
 
-    public SomeEntry(String key, byte[] value) {
-        _value = value;
+    public SomeEntry(String key) {
         _key = key;
         _fileName = DigestUtils.md5Hex(key);
     }
@@ -18,16 +16,8 @@ public class SomeEntry {
         return _key;
     }
 
-    public byte[] getValue() {
-        return _value;
-    }
-
     public void setKey(String key) {
         _key = key;
-    }
-
-    public void setValue(byte[] value) {
-        _value = value;
     }
 
     public void writeToFile() {
