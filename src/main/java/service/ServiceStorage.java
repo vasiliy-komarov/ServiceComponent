@@ -18,12 +18,9 @@ public class ServiceStorage implements Service {
     private HashMap<String, String> keysMap = new HashMap<>();
 
     public byte[] get(String key) throws WrongKeyException, FileNotFoundException, Exception {
-        String newKey = ofNullable(key)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty() || s.length() < 129)
-                .orElseThrow(WrongKeyException::new);
+        String newKey = assertKey(key);
 
-        if (keysMap.containsKey(newKey)) {
+        if (!keysMap.containsKey(newKey)) {
             throw new FileNotFoundException();
         }
 
@@ -31,16 +28,25 @@ public class ServiceStorage implements Service {
     }
 
     public void put(String key, byte[] data) throws WrongKeyException, Exception {
-        String newKey = ofNullable(key)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty() || s.length() < 129)
-                .orElseThrow(WrongKeyException::new);
+        String newKey = assertKey(key);
 
         String md5 = DigestUtils.md5Hex(newKey);
 
         keysMap.put(newKey, md5);
     }
 
-    public void remove(String key) throws WrongKeyException, Exception {
+    public void remove(String key) throws WrongKeyException, FileNotFoundException, Exception {
+        String newKey = assertKey(key);
+
+        if (!keysMap.containsKey(newKey)) {
+            throw new FileNotFoundException();
+        }
+    }
+
+    private String assertKey(String key) throws WrongKeyException {
+        return ofNullable(key)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty() || s.length() < 129)
+                .orElseThrow(WrongKeyException::new);
     }
 }
