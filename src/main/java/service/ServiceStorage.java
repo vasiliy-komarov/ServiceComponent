@@ -57,8 +57,8 @@ public class ServiceStorage implements Service {
                 .orElseThrow(WrongKeyException::new);
     }
 
-    public Map<String, String> getKeyValue() {
-        Map<String, String> map = new HashMap<>();
+    public Map<String, byte[]> getKeyValue() {
+        Map<String, byte[]> map = new HashMap<>();
 
         // find all file names and keys
 
