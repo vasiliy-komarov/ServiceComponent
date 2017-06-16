@@ -34,7 +34,8 @@ public class TestThreads extends Thread {
         } catch (WrongDirNameException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("ERROR, FNFE, thread = " + Thread.currentThread().getName());
+//            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

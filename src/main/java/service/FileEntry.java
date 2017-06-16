@@ -48,15 +48,19 @@ public class FileEntry {
     }
 
     public File getFileIfExist() {
-        readLock.lock();
-        System.out.println("LOCK FileEntry, thread name = " + Thread.currentThread().getName()
+        writeLock.lock();
+        String threadName = Thread.currentThread().getName();
+        System.out.println("LOCK FileEntry, thread name = " + threadName
                 + ", name file = " + _key
         );
         try {
             File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
             File f = null;
 
+
+
             if (listFiles != null) {
+                System.out.println("SEARCH FILES not empty, name = " + threadName);
                 for (File file : listFiles) {
                     if (file != null) {
                         f = file;
@@ -69,7 +73,7 @@ public class FileEntry {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
             System.out.println("UNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
         }
         return null;
