@@ -49,7 +49,9 @@ public class FileEntry {
 
     public File getFileIfExist() {
         readLock.lock();
-        System.out.println("LOCK FileEntry, thread name = " + Thread.currentThread().getName());
+        System.out.println("LOCK FileEntry, thread name = " + Thread.currentThread().getName()
+                + ", name file = " + _key
+        );
         try {
             File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
             File f = null;

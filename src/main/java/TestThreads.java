@@ -24,11 +24,11 @@ public class TestThreads extends Thread {
 
 //        File fileIfExist = entry.getFileIfExist();
         try {
-            long start = System.currentTimeMillis();
+//            long start = System.currentTimeMillis();
             byte[] bytes = service.get(name);
-            long stop = System.currentTimeMillis();
-            System.out.println("thread name = " + Thread.currentThread().getId());
-            System.out.println("duration = " + (stop - start));
+//            long stop = System.currentTimeMillis();
+//            System.out.println("thread name = " + Thread.currentThread().getId());
+//            System.out.println("duration = " + (stop - start));
         } catch (WrongKeyException e) {
             e.printStackTrace();
         } catch (WrongDirNameException e) {

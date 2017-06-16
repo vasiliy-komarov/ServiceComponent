@@ -35,6 +35,7 @@ public class ServiceStorage implements Service {
         String encodedKey = getEncodedKey(assertedKey);
 
         if (keysMap.containsKey(encodedKey)) {
+            System.out.println("contains key = " + key);
             return keysMap.get(encodedKey);
         } else {
             FileEntry fileEntry = new FileEntry(assertedKey, "D:\\tempFiles\\");
