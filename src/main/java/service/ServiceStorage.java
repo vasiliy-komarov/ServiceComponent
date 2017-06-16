@@ -3,6 +3,7 @@ package service;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class ServiceStorage implements Service {
 
     private Map<String, FileEntry> keysMap = new HashMap<>(); // key = md5 code
 
-    public byte[] get(String key) throws WrongKeyException, FileNotFoundException, Exception {
+    public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         String newKey = assertKey(key);
         FileEntry fileEntry;
 
