@@ -19,17 +19,19 @@ public class ServiceStorage implements Service {
 
     private Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
 
+    private String assertKey(String key) throws WrongKeyException {
+        return ofNullable(key)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty() || s.length() < 129)
+                .orElseThrow(WrongKeyException::new);
+    }
+
+    private String getEncodedKey(String key) {
+        return DigestUtils.md5Hex(key);
+    }
+
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
-        String newKey = assertKey(key);
-        FileEntry fileEntry;
-
-        if (keysMap.containsKey(newKey)) {
-            fileEntry = keysMap.get(newKey);
-        } else {
-            fileEntry = new FileEntry(newKey, "somedir");
-            keysMap.put(newKey, fileEntry);
-        }
-
+        FileEntry fileEntry = getFileEntry(key);
         File file = fileEntry.getFileIfExist();
 
         if (file == null) throw new FileNotFoundException();
@@ -40,21 +42,28 @@ public class ServiceStorage implements Service {
     }
 
     public void put(String key, byte[] data) throws WrongKeyException, Exception {
-        String newKey = assertKey(key);
+        FileEntry fileEntry = getFileEntry(key);
 
+//        fileEntry.writeToFile(data);
     }
 
     public void remove(String key) throws WrongKeyException, Exception {
-        String newKey = assertKey(key);
+        FileEntry fileEntry = getFileEntry(key);
 
+        fileEntry.removeFileIfExist();
     }
 
-    private String assertKey(String key) throws WrongKeyException {
-        return ofNullable(key)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty() || s.length() < 129)
-                .map(DigestUtils::md5Hex)
-                .orElseThrow(WrongKeyException::new);
+    private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
+        String assertedKey = assertKey(key);
+        String encodedKey = getEncodedKey(assertedKey);
+
+        if (keysMap.containsKey(encodedKey)) {
+            return keysMap.get(encodedKey);
+        } else {
+            FileEntry fileEntry = new FileEntry(assertedKey, "someDir");
+            keysMap.put(encodedKey, fileEntry);
+            return fileEntry;
+        }
     }
 
     public Map<String, byte[]> getKeyValue() {

@@ -71,4 +71,8 @@ public class FileEntry {
 
         return listFiles != null && listFiles.length > 0;
     }
+
+    public void removeFileIfExist() {
+
+    }
 }
