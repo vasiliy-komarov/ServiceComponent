@@ -2,6 +2,8 @@ package service;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,20 +15,31 @@ public class ServiceStorage implements Service {
 //    private final Lock readLock = readWriteLock.readLock();
 //    private final Lock writeLock = readWriteLock.writeLock();
 
-    private Map<String, SomeEntry> keysMap = new HashMap<>();
+    private Map<String, FileEntry> keysMap = new HashMap<>(); // key = md5 code
 
-    public byte[] get(String key) throws WrongKeyException, Exception {
+    public byte[] get(String key) throws WrongKeyException, FileNotFoundException, Exception {
         String newKey = assertKey(key);
+        FileEntry fileEntry;
 
-        return new byte[1];
+        if (keysMap.containsKey(newKey)) {
+            fileEntry = keysMap.get(newKey);
+        } else {
+            fileEntry = new FileEntry(newKey, "somedir");
+            keysMap.put(newKey, fileEntry);
+        }
+
+        File file = fileEntry.getFileIfExist();
+
+        if (file == null) throw new FileNotFoundException();
+
+        byte[] fileBytes = Files.readAllBytes(file.toPath());
+
+        return fileBytes;
     }
 
     public void put(String key, byte[] data) throws WrongKeyException, Exception {
         String newKey = assertKey(key);
 
-        String md5 = DigestUtils.md5Hex(newKey);
-
-//        keysMap.put(newKey, md5);
     }
 
     public void remove(String key) throws WrongKeyException, Exception {
@@ -38,6 +51,7 @@ public class ServiceStorage implements Service {
         return ofNullable(key)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty() || s.length() < 129)
+                .map(DigestUtils::md5Hex)
                 .orElseThrow(WrongKeyException::new);
     }
 

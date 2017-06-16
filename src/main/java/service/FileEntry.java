@@ -9,19 +9,19 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class SomeEntry {
+public class FileEntry {
 
     private String _key;
-    private String _dir;
+    private String _dir = "";
     private String _fileName;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
-    public SomeEntry(String key, String dir) throws WrongKeyException, WrongDirLocation {
+    public FileEntry(String key, String dir) throws WrongKeyException, WrongDirNameException {
         Optional.ofNullable(key).map(String::trim).filter(k -> !k.isEmpty()).orElseThrow(WrongKeyException::new);
-        Optional.ofNullable(dir).map(String::trim).filter(d -> !d.isEmpty()).orElseThrow(WrongDirLocation::new);
+        Optional.ofNullable(dir).map(String::trim).filter(d -> !d.isEmpty()).orElseThrow(WrongDirNameException::new);
 
         _dir = dir;
         _key = key;
@@ -38,20 +38,32 @@ public class SomeEntry {
 
     public void writeToFile(byte[] value) {
         // TODO LOCK
-        File f = getFileIfExist();
+//        File f = getFileIfExist();
 
     }
 
     public File getFileIfExist() {
-        File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
-        File f = null;
-        for (File file : listFiles) {
-            if (file != null) {
-                f = file;
-                break;
+        readLock.lock();
+        try {
+            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
+            File f = null;
+
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (file != null) {
+                        f = file;
+                        break;
+                    }
+                }
             }
+
+            return f;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            readLock.unlock();
         }
-        return f;
+        return null;
     }
 
     private boolean isExistFile() {
