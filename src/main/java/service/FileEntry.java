@@ -3,6 +3,11 @@ package service;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -67,7 +72,7 @@ public class FileEntry {
     }
 
     private boolean isExistFile() {
-        File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
+        String[] listFiles = new File(_dir).list((f, name) -> Objects.equals(_fileName, name));
 
         return listFiles != null && listFiles.length > 0;
     }

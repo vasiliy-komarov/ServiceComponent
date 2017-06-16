@@ -30,6 +30,19 @@ public class ServiceStorage implements Service {
         return DigestUtils.md5Hex(key);
     }
 
+    private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
+        String assertedKey = assertKey(key);
+        String encodedKey = getEncodedKey(assertedKey);
+
+        if (keysMap.containsKey(encodedKey)) {
+            return keysMap.get(encodedKey);
+        } else {
+            FileEntry fileEntry = new FileEntry(assertedKey, "someDir");
+            keysMap.put(encodedKey, fileEntry);
+            return fileEntry;
+        }
+    }
+
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         FileEntry fileEntry = getFileEntry(key);
         File file = fileEntry.getFileIfExist();
@@ -51,19 +64,6 @@ public class ServiceStorage implements Service {
         FileEntry fileEntry = getFileEntry(key);
 
         fileEntry.removeFileIfExist();
-    }
-
-    private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
-        String assertedKey = assertKey(key);
-        String encodedKey = getEncodedKey(assertedKey);
-
-        if (keysMap.containsKey(encodedKey)) {
-            return keysMap.get(encodedKey);
-        } else {
-            FileEntry fileEntry = new FileEntry(assertedKey, "someDir");
-            keysMap.put(encodedKey, fileEntry);
-            return fileEntry;
-        }
     }
 
     public Map<String, byte[]> getKeyValue() {
