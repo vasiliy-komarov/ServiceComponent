@@ -37,7 +37,7 @@ public class ServiceStorage implements Service {
         if (keysMap.containsKey(encodedKey)) {
             return keysMap.get(encodedKey);
         } else {
-            FileEntry fileEntry = new FileEntry(assertedKey, "someDir");
+            FileEntry fileEntry = new FileEntry(assertedKey, "D:\\tempFiles\\");
             keysMap.put(encodedKey, fileEntry);
             return fileEntry;
         }
@@ -45,6 +45,7 @@ public class ServiceStorage implements Service {
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         FileEntry fileEntry = getFileEntry(key);
+        System.out.println("Service storage, try to get file");
         File file = fileEntry.getFileIfExist();
 
         if (file == null) throw new FileNotFoundException();
