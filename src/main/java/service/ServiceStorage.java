@@ -3,6 +3,7 @@ package service;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Optional.ofNullable;
 
@@ -12,14 +13,10 @@ public class ServiceStorage implements Service {
 //    private final Lock readLock = readWriteLock.readLock();
 //    private final Lock writeLock = readWriteLock.writeLock();
 
-    private HashMap<String, SomeEntry> keysMap = new HashMap<>();
+    private Map<String, SomeEntry> keysMap = new HashMap<>();
 
-    public byte[] get(String key) throws WrongKeyException, FileNotFoundException, Exception {
+    public byte[] get(String key) throws WrongKeyException, Exception {
         String newKey = assertKey(key);
-
-        if (!keysMap.containsKey(newKey)) {
-            throw new FileNotFoundException();
-        }
 
         return new byte[1];
     }
@@ -32,12 +29,9 @@ public class ServiceStorage implements Service {
 //        keysMap.put(newKey, md5);
     }
 
-    public void remove(String key) throws WrongKeyException, FileNotFoundException, Exception {
+    public void remove(String key) throws WrongKeyException, Exception {
         String newKey = assertKey(key);
 
-        if (!keysMap.containsKey(newKey)) {
-            throw new FileNotFoundException();
-        }
     }
 
     private String assertKey(String key) throws WrongKeyException {
@@ -46,4 +40,13 @@ public class ServiceStorage implements Service {
                 .filter(s -> !s.isEmpty() || s.length() < 129)
                 .orElseThrow(WrongKeyException::new);
     }
+
+    public Map<String, String> getKeyValue() {
+        Map<String, String> map = new HashMap<>();
+
+        // find all file names and keys
+
+        return map;
+    }
+
 }

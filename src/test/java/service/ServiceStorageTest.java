@@ -24,7 +24,7 @@ public class ServiceStorageTest {
 
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 130; i++) {
-            builder.append(i);
+            builder.append("A");
         }
         storage.get(builder.toString());
     }
