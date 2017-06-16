@@ -6,9 +6,9 @@ import java.io.IOException;
 public class TestThreads extends Thread {
     String name = "";
     ServiceStorage service;
-    TestThreads(String file) {
+    TestThreads(String file, ServiceStorage serviceStorage) {
         name = file;
-        service = new ServiceStorage();
+        service = serviceStorage;
     }
 
     @Override

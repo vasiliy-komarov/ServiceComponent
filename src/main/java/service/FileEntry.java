@@ -68,6 +68,7 @@ public class FileEntry {
             e.printStackTrace();
         } finally {
             readLock.unlock();
+            System.out.println("UNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
         }
         return null;
     }

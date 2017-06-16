@@ -1,4 +1,5 @@
 import service.FileEntry;
+import service.ServiceStorage;
 import service.WrongDirNameException;
 import service.WrongKeyException;
 
@@ -20,16 +21,17 @@ public class Main {
 //            } else {
 //                System.out.println("File not found");
 //            }
+        ServiceStorage service = new ServiceStorage();
         Main m = new Main();
-        Thread t1 = new TestThreads("testFile1");
-        Thread t2 = new TestThreads("testFile1");
-        Thread t7 = new TestThreads("testFile");
-        Thread t6 = new TestThreads("testFile");
-        Thread t3 = new TestThreads("testFile1");
-        Thread t8 = new TestThreads("testFile");
-        Thread t4 = new TestThreads("testFile1");
-        Thread t9 = new TestThreads("testFile");
-        Thread t5 = new TestThreads("testFile1");
+        Thread t1 = new TestThreads("testFile1", service);
+        Thread t2 = new TestThreads("testFile1", service);
+        Thread t3 = new TestThreads("testFile", service);
+        Thread t4 = new TestThreads("testFile", service);
+        Thread t5 = new TestThreads("testFile1", service);
+        Thread t6 = new TestThreads("testFile", service);
+        Thread t7 = new TestThreads("testFile1", service);
+        Thread t8 = new TestThreads("testFile", service);
+        Thread t9 = new TestThreads("testFile1", service);
 
         t1.start();
         t2.start();

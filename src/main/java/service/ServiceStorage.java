@@ -45,7 +45,7 @@ public class ServiceStorage implements Service {
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         FileEntry fileEntry = getFileEntry(key);
-        System.out.println("Service storage, try to get file");
+        System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
         File file = fileEntry.getFileIfExist();
 
         if (file == null) throw new FileNotFoundException();
