@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Optional.ofNullable;
 
@@ -16,7 +17,7 @@ public class ServiceStorage implements Service {
 //    private final Lock readLock = readWriteLock.readLock();
 //    private final Lock writeLock = readWriteLock.writeLock();
 
-    private Map<String, FileEntry> keysMap = new HashMap<>(); // key = md5 code
+    private Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         String newKey = assertKey(key);
