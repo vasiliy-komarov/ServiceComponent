@@ -2,11 +2,9 @@ package service;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.*;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Iterator;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,55 +46,47 @@ public class FileEntry {
 
         atom.updateAndGet(current -> {
             System.out.println("UPDATE AND GET, current = " + current.getAbsolutePath());
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(file);
+
+            try (FileOutputStream out = new FileOutputStream(file)) {
                 out.write(value);
 
                 System.out.println("WRITE SUCCESS!");
 
-                if (file.getName().endsWith(".swap")) {
-                    file.renameTo(new File(file.getAbsolutePath().replace(".swap", "")));
-                    System.out.println("SUCCESS RENAME FILE, file = " + file.getAbsolutePath());
-                }
+                String newName = file.getAbsolutePath().replace(".swap", "");
+                boolean isRenamed = file.renameTo(new File(newName));
+
+                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
             return current;
         });
     }
 
-    public void writeToFile(byte[] value) throws IOException {
+    public void writeToFile(byte[] value) throws Exception {
         writeLock.lock();
 
-        File f = getFileIfExist();
-        FileOutputStream outputStream = null;
+        File file = getFileIfExist();
         try {
-            System.out.println("WRITE LOCK WRITE FILE, f = " + f);
-            if (f != null) {
-                write(f, value);
-            } else {
-                String filePath = _dir + _fileName + ".swap";
-                File newFile = new File(filePath);
-                newFile.createNewFile();
-                write(newFile, value);
+            System.out.println("WRITE LOCK WRITE FILE, f = " + file);
+            String filePath = _dir + _fileName + ".swap";
+
+            File newFile = new File(filePath);
+            boolean isCreated = newFile.createNewFile();
+
+            if (isCreated) {
+                if (file != null) {
+                    write(newFile, value);
+                    file.delete();
+                } else {
+                    write(newFile, value);
+                }
             }
         } catch (Exception e) {
             throw e;
         } finally {
             writeLock.unlock();
-            System.out.println("WRITE UNLOCK WRITE FILE, f = " + f);
-            if (outputStream != null) {
-                outputStream.close();
-            }
+            System.out.println("WRITE UNLOCK WRITE FILE, f = " + file);
         }
 
     }

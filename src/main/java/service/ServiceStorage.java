@@ -5,6 +5,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +18,8 @@ public class ServiceStorage implements Service {
 //    private final Lock readLock = readWriteLock.readLock();
 //    private final Lock writeLock = readWriteLock.writeLock();
 
-    private Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
+    private static Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
+//    private static Map<String, FileEntry> keysMap = Collections.synchronizedMap(new HashMap<>()); // key = md5 code
     private String _defaultDir = "../storage/";
 
     public ServiceStorage() {
@@ -53,12 +55,17 @@ public class ServiceStorage implements Service {
         String encodedKey = getEncodedKey(assertedKey);
 
         if (keysMap.containsKey(encodedKey)) {
-            System.out.println("contains key = " + key);
+            System.out.println("getFileEntry contains key = " + key);
+
             return keysMap.get(encodedKey);
         } else {
             FileEntry fileEntry = new FileEntry(assertedKey, _defaultDir);
-            System.out.println("create file entry and put in map");
+
+            System.out.println("getFileEntry create file entry and put in map");
+
+            keysMap.keySet().forEach(s -> System.out.println("keys in map = " + s));
             keysMap.put(encodedKey, fileEntry);
+
             return fileEntry;
         }
     }
