@@ -2,14 +2,14 @@ package service;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -25,11 +25,13 @@ public class FileEntry {
     private final Lock writeLock = readWriteLock.writeLock();
 
     public FileEntry(String key, String dir) throws WrongKeyException, WrongDirNameException {
-        Optional.ofNullable(key).map(String::trim).filter(k -> !k.isEmpty()).orElseThrow(WrongKeyException::new);
-        Optional.ofNullable(dir).map(String::trim).filter(d -> !d.isEmpty()).orElseThrow(WrongDirNameException::new);
+        _key = Optional.ofNullable(key).map(String::trim).filter(k -> !k.isEmpty()).orElseThrow(WrongKeyException::new);
+        _dir = Optional.ofNullable(dir)
+                .map(String::trim)
+                .filter(d -> !d.isEmpty())
+                .map(d -> d += d.endsWith("/") ? "" : "/")
+                .orElseThrow(WrongDirNameException::new);
 
-        _dir = dir;
-        _key = key;
         _fileName = DigestUtils.md5Hex(key);
     }
 
@@ -41,14 +43,54 @@ public class FileEntry {
         return _fileName;
     }
 
-    public void writeToFile(byte[] value) {
-        // TODO LOCK
-//        File f = getFileIfExist();
+    private void write(File f, byte[] value) {
+        AtomicReference<File> atom = new AtomicReference<>(f);
+
+        atom.updateAndGet(current -> {
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(f);
+                out.write(value);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return current;
+        });
+    }
+
+    public void writeToFile(byte[] value) throws IOException {
+        writeLock.lock();
+
+        File f = getFileIfExist();
+        FileOutputStream outputStream = null;
+        try {
+            if (f != null) {
+                write(f, value);
+            } else {
+                String filePath = new StringBuilder(_dir).append(_dir).append(_fileName).append(".swap").toString();
+                File newFile = new File(filePath);
+                newFile.createNewFile();
+                write(newFile, value);
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            writeLock.unlock();
+            outputStream.close();
+        }
 
     }
 
     public File getFileIfExist() {
-        writeLock.lock();
+        readLock.lock();
         String threadName = Thread.currentThread().getName();
         System.out.println("LOCK FileEntry, thread name = " + threadName
                 + ", name file = " + _key
@@ -56,8 +98,6 @@ public class FileEntry {
         try {
             File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
             File f = null;
-
-
 
             if (listFiles != null) {
                 System.out.println("SEARCH FILES not empty, name = " + threadName);
@@ -73,7 +113,7 @@ public class FileEntry {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            writeLock.unlock();
+            readLock.unlock();
             System.out.println("UNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
         }
         return null;

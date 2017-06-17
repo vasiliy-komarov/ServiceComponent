@@ -18,6 +18,24 @@ public class ServiceStorage implements Service {
 //    private final Lock writeLock = readWriteLock.writeLock();
 
     private Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
+    private String _defaultDir = "../storage/";
+
+    public ServiceStorage() {
+        makeDirIfNotExist();
+    }
+
+    public ServiceStorage(String defaultDir) {
+        _defaultDir = ofNullable(defaultDir).map(String::trim).filter(s -> !s.isEmpty()).orElse(_defaultDir);
+        makeDirIfNotExist();
+    }
+
+    private void makeDirIfNotExist() {
+        File f = new File(_defaultDir);
+
+        if (!f.isDirectory()) {
+            f.mkdir();
+        }
+    }
 
     private String assertKey(String key) throws WrongKeyException {
         return ofNullable(key)
@@ -38,15 +56,15 @@ public class ServiceStorage implements Service {
             System.out.println("contains key = " + key);
             return keysMap.get(encodedKey);
         } else {
-            FileEntry fileEntry = new FileEntry(assertedKey, "D:\\tempFiles\\");
+            FileEntry fileEntry = new FileEntry(assertedKey, _defaultDir);
             keysMap.put(encodedKey, fileEntry);
             return fileEntry;
         }
     }
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
-        FileEntry fileEntry = getFileEntry(key);
         System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
+        FileEntry fileEntry = getFileEntry(key);
         File file = fileEntry.getFileIfExist();
 
         if (file == null) throw new FileNotFoundException();
@@ -59,7 +77,7 @@ public class ServiceStorage implements Service {
     public void put(String key, byte[] data) throws WrongKeyException, Exception {
         FileEntry fileEntry = getFileEntry(key);
 
-//        fileEntry.writeToFile(data);
+        fileEntry.writeToFile(data);
     }
 
     public void remove(String key) throws WrongKeyException, Exception {

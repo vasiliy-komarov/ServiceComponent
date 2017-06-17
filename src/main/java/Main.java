@@ -4,6 +4,7 @@ import service.WrongDirNameException;
 import service.WrongKeyException;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
 
@@ -22,34 +23,43 @@ public class Main {
 //                System.out.println("File not found");
 //            }
         ServiceStorage service = new ServiceStorage();
-        Main m = new Main();
-        Thread t1 = new TestThreads("testFile1", service);
-        Thread t2 = new TestThreads("testFile1", service);
-        Thread t3 = new TestThreads("testFile", service);
-        Thread t4 = new TestThreads("testFile", service);
-        Thread t5 = new TestThreads("testFile1", service);
-        Thread t6 = new TestThreads("testFile", service);
-        Thread t7 = new TestThreads("testFile1", service);
-        Thread t8 = new TestThreads("testFile", service);
-        Thread t9 = new TestThreads("testFile1", service);
+//
+//        Thread t1 = new TestThreads("testFile1", service);
+//        Thread t2 = new TestThreads("testFile1", service);
+//        Thread t3 = new TestThreads("testFile", service);
+//        Thread t4 = new TestThreads("testFile", service);
+//        Thread t5 = new TestThreads("testFile1", service);
+//        Thread t6 = new TestThreads("testFile", service);
+//        Thread t7 = new TestThreads("testFile1", service);
+//        Thread t8 = new TestThreads("testFile", service);
+//        Thread t9 = new TestThreads("testFile1", service);
+//
+//        t1.start();
+//        t2.start();
+//        t3.start();
+//        t4.start();
+//        t5.start();
+//        t6.start();
+//        t7.start();
+//        t8.start();
+//        t9.start();
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                System.out.println("hello, i'm = " + Thread.currentThread().getName());
+//            }
+//        }).start();
 
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
-        t6.start();
-        t7.start();
-        t8.start();
-        t9.start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("hello, i'm = " + Thread.currentThread().getName());
-            }
-        }).start();
-
+//        String hello = "hello12345";
+//        try {
+//            byte[] testFiles = service.get("testFile");
+//            String s = new String(testFiles, "UTF-8");
+//            System.out.println("s = " + s);
+//            service.put("testFile", hello.getBytes());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 
