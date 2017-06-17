@@ -5,7 +5,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,10 +87,10 @@ public class ServiceStorage implements Service {
         fileEntry.writeToFile(data);
     }
 
-    public void remove(String key) throws WrongKeyException, Exception {
+    public boolean remove(String key) throws WrongKeyException, Exception {
         FileEntry fileEntry = getFileEntry(key);
 
-        fileEntry.removeFileIfExist();
+        return fileEntry.removeFileIfExist();
     }
 
     public Map<String, byte[]> getKeyValue() {

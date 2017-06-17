@@ -77,25 +77,25 @@ public class FileEntry {
             if (isCreated) {
                 if (file != null) {
                     System.out.println("old file path = " + file.getAbsolutePath());
-                    System.out.println("new file path = " + newFile.getAbsolutePath());
                     boolean isDeleted = file.delete();
-                    write(newFile, value);
+
                     System.out.println("old file was deleted = " + isDeleted);
-                } else {
-                    write(newFile, value);
                 }
+                write(newFile, value);
+                System.out.println("new file path = " + newFile.getAbsolutePath());
             }
         } catch (Exception e) {
             throw e;
         } finally {
             writeLock.unlock();
-            System.out.println("WRITE UNLOCK WRITE FILE, f = " + file);
+            System.out.println("WRITE UNLOCK WRITE FILE");
         }
 
     }
 
     public File getFileIfExist() {
         readLock.lock();
+
         String threadName = Thread.currentThread().getName();
         System.out.println("getFileIfExist READLOCK FileEntry, thread name = " + threadName
                 + ", name file = " + _key
@@ -130,7 +130,28 @@ public class FileEntry {
         return listFiles != null && listFiles.length > 0;
     }
 
-    public void removeFileIfExist() {
+    public boolean removeFileIfExist() {
+        writeLock.lock();
 
+        try {
+            File existFile = null;
+            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
+
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (file != null) {
+                        existFile = file;
+                        break;
+                    }
+                }
+            }
+
+            return Optional.ofNullable(existFile).map(File::delete).orElse(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writeLock.unlock();
+        }
+        return false;
     }
 }
