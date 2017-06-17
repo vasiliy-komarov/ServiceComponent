@@ -76,8 +76,11 @@ public class FileEntry {
 
             if (isCreated) {
                 if (file != null) {
+                    System.out.println("old file path = " + file.getAbsolutePath());
+                    System.out.println("new file path = " + newFile.getAbsolutePath());
+                    boolean isDeleted = file.delete();
                     write(newFile, value);
-                    file.delete();
+                    System.out.println("old file was deleted = " + isDeleted);
                 } else {
                     write(newFile, value);
                 }
