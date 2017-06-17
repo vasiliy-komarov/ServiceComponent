@@ -53,6 +53,7 @@ public class ServiceStorage implements Service {
         String assertedKey = assertKey(key);
         String encodedKey = getEncodedKey(assertedKey);
 
+        System.out.println("getFileEntry thread name = " + Thread.currentThread().getName());
         if (keysMap.containsKey(encodedKey)) {
             System.out.println("getFileEntry contains key = " + key);
 
@@ -71,11 +72,13 @@ public class ServiceStorage implements Service {
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
         System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
+
         FileEntry fileEntry = getFileEntry(key);
-        File file = fileEntry.getFileIfExist();
+        File file = fileEntry.getFile();
 
         if (file == null) throw new FileNotFoundException();
 
+        System.out.println("Service storage, bytes, name = " + Thread.currentThread().getName());
         byte[] fileBytes = Files.readAllBytes(file.toPath());
 
         return fileBytes;
