@@ -26,20 +26,20 @@ public class Main {
 //
 //        Thread t1 = new TestThreads("testFile1", service);
 //        Thread t2 = new TestThreads("testFile1", service);
-//        Thread t3 = new TestThreads("testFile", service);
-//        Thread t4 = new TestThreads("testFile", service);
+        Thread t3 = new TestThreads("testFile", service);
+        Thread t4 = new TestThreads("testFile", service);
 //        Thread t5 = new TestThreads("testFile1", service);
-//        Thread t6 = new TestThreads("testFile", service);
+        Thread t6 = new TestThreads("testFile", service);
 //        Thread t7 = new TestThreads("testFile1", service);
 //        Thread t8 = new TestThreads("testFile", service);
 //        Thread t9 = new TestThreads("testFile1", service);
 //
 //        t1.start();
 //        t2.start();
-//        t3.start();
-//        t4.start();
+        t3.start();
+        t4.start();
 //        t5.start();
-//        t6.start();
+        t6.start();
 //        t7.start();
 //        t8.start();
 //        t9.start();
@@ -51,15 +51,15 @@ public class Main {
 //            }
 //        }).start();
 
-//        String hello = "hello12345";
-//        try {
-//            byte[] testFiles = service.get("testFile");
-//            String s = new String(testFiles, "UTF-8");
-//            System.out.println("s = " + s);
-//            service.put("testFile", hello.getBytes());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        String hello = "hello123456789056657";
+        try {
+            service.put("testFile", hello.getBytes());
+            byte[] testFiles = service.get("testFile");
+            String s = new String(testFiles, "UTF-8");
+            System.out.println("s = " + s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

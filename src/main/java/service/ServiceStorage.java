@@ -30,10 +30,10 @@ public class ServiceStorage implements Service {
     }
 
     private void makeDirIfNotExist() {
-        File f = new File(_defaultDir);
+        File file = new File(_defaultDir);
 
-        if (!f.isDirectory()) {
-            f.mkdir();
+        if (!file.isDirectory()) {
+            file.mkdir();
         }
     }
 
@@ -57,6 +57,7 @@ public class ServiceStorage implements Service {
             return keysMap.get(encodedKey);
         } else {
             FileEntry fileEntry = new FileEntry(assertedKey, _defaultDir);
+            System.out.println("create file entry and put in map");
             keysMap.put(encodedKey, fileEntry);
             return fileEntry;
         }

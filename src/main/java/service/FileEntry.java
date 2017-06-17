@@ -43,14 +43,22 @@ public class FileEntry {
         return _fileName;
     }
 
-    private void write(File f, byte[] value) {
-        AtomicReference<File> atom = new AtomicReference<>(f);
+    private void write(File file, byte[] value) {
+        AtomicReference<File> atom = new AtomicReference<>(file);
 
         atom.updateAndGet(current -> {
+            System.out.println("UPDATE AND GET, current = " + current.getAbsolutePath());
             FileOutputStream out = null;
             try {
-                out = new FileOutputStream(f);
+                out = new FileOutputStream(file);
                 out.write(value);
+
+                System.out.println("WRITE SUCCESS!");
+
+                if (file.getName().endsWith(".swap")) {
+                    file.renameTo(new File(file.getAbsolutePath().replace(".swap", "")));
+                    System.out.println("SUCCESS RENAME FILE, file = " + file.getAbsolutePath());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -72,10 +80,11 @@ public class FileEntry {
         File f = getFileIfExist();
         FileOutputStream outputStream = null;
         try {
+            System.out.println("WRITE LOCK WRITE FILE, f = " + f);
             if (f != null) {
                 write(f, value);
             } else {
-                String filePath = new StringBuilder(_dir).append(_dir).append(_fileName).append(".swap").toString();
+                String filePath = _dir + _fileName + ".swap";
                 File newFile = new File(filePath);
                 newFile.createNewFile();
                 write(newFile, value);
@@ -84,7 +93,10 @@ public class FileEntry {
             throw e;
         } finally {
             writeLock.unlock();
-            outputStream.close();
+            System.out.println("WRITE UNLOCK WRITE FILE, f = " + f);
+            if (outputStream != null) {
+                outputStream.close();
+            }
         }
 
     }
@@ -92,7 +104,7 @@ public class FileEntry {
     public File getFileIfExist() {
         readLock.lock();
         String threadName = Thread.currentThread().getName();
-        System.out.println("LOCK FileEntry, thread name = " + threadName
+        System.out.println("getFileIfExist READLOCK FileEntry, thread name = " + threadName
                 + ", name file = " + _key
         );
         try {
@@ -114,7 +126,7 @@ public class FileEntry {
             e.printStackTrace();
         } finally {
             readLock.unlock();
-            System.out.println("UNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
+            System.out.println("getFileIfExist READUNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
         }
         return null;
     }
