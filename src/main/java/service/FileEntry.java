@@ -5,6 +5,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -64,13 +66,18 @@ public class FileEntry {
 
             try (FileOutputStream out = new FileOutputStream(file)) {
                 out.write(value);
-
                 System.out.println("WRITE SUCCESS!");
 
-                String newName = file.getAbsolutePath().replace(".swap", "");
-                boolean isRenamed = file.renameTo(new File(newName));
+                String newName = file.getName().replace(".swap", ".new");
+                System.out.println("newName = " + newName);
 
-                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
+                File newFileName = new File(newName);
+
+                Path move = Files.move(file.toPath(), newFileName.toPath());
+                System.out.println("move = " + move);
+
+//                boolean isRenamed = file.renameTo(newFileName);
+//                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,27 +86,25 @@ public class FileEntry {
     }
 
     public void writeToFile(byte[] value) throws Exception {
-        writeLock.lock();
 
-        File file = getFileIfExist();
+        writeLock.lock();
         try {
-            System.out.println("WRITE LOCK WRITE FILE, f = " + file
-                    + ", thread name = " + Thread.currentThread().getName()
-            );
             String filePath = _dir + _fileName + ".swap";
 
+            File file = getFileIfExist();
+            if (file != null) {
+                System.out.println("old file path = " + file.getAbsolutePath());
+                boolean isDeleted = file.delete();
+                System.out.println("old file was deleted = " + isDeleted);
+            }
+            System.out.println("WRITE LOCK WRITE FILE, f = " + file + ", thread name = " + Thread.currentThread().getName());
             File newFile = new File(filePath);
-            boolean isCreated = newFile.createNewFile();
+//            boolean isCreated = newFile.createNewFile();
 
-            if (isCreated) {
-                if (file != null) {
-                    System.out.println("old file path = " + file.getAbsolutePath());
-                    boolean isDeleted = file.delete();
-                    System.out.println("old file was deleted = " + isDeleted);
-                }
+//            if (isCreated) {
                 write(newFile, value);
                 System.out.println("new file path = " + newFile.getAbsolutePath());
-            }
+//            }
         } catch (Exception e) {
             throw e;
         } finally {
@@ -109,33 +114,44 @@ public class FileEntry {
 
     }
 
-    public File getFileIfExist() {
+    public File getFile() {
         readLock.lock();
 
-        String threadName = Thread.currentThread().getName();
-        System.out.println("getFileIfExist READLOCK FileEntry, thread name = " + threadName
-                + ", name file = " + _key
-        );
         try {
-            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
-            File f = null;
+            String threadName = Thread.currentThread().getName();
+            System.out.println("getFile READLOCK FileEntry, thread name = " + threadName
+                    + ", name file = " + _key
+            );
+            return getFileIfExist();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("getFile READUNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
+            readLock.unlock();
+        }
+        return null;
+    }
+
+    private File getFileIfExist() {
+        try {
+            File existFile = null;
+            String tempName = _fileName + ".swap";
+            File[] listFiles = new File(_dir).listFiles((f, name) -> {
+                System.out.println("fileName = " + name + ", _file = " + _fileName);
+                return Objects.equals(_fileName, name) || Objects.equals(tempName, name);
+            });
 
             if (listFiles != null) {
-                System.out.println("SEARCH FILES not empty, name = " + threadName);
                 for (File file : listFiles) {
                     if (file != null) {
-                        f = file;
+                        existFile = file;
                         break;
                     }
                 }
             }
-
-            return f;
+            return existFile;
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            readLock.unlock();
-            System.out.println("getFileIfExist READUNLOCK FileEntry, thread name = " + Thread.currentThread().getName());
         }
         return null;
     }
@@ -150,17 +166,17 @@ public class FileEntry {
         writeLock.lock();
 
         try {
-            File existFile = null;
-            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
-
-            if (listFiles != null) {
-                for (File file : listFiles) {
-                    if (file != null) {
-                        existFile = file;
-                        break;
-                    }
-                }
-            }
+            File existFile = getFileIfExist();
+//            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
+//
+//            if (listFiles != null) {
+//                for (File file : listFiles) {
+//                    if (file != null) {
+//                        existFile = file;
+//                        break;
+//                    }
+//                }
+//            }
 
             return Optional.ofNullable(existFile).map(File::delete).orElse(false);
         } catch (Exception e) {

@@ -21,13 +21,19 @@ public class ServiceStorage implements Service {
 //    private static Map<String, FileEntry> keysMap = Collections.synchronizedMap(new HashMap<>()); // key = md5 code
     private String _defaultDir = "../storage/";
 
+    private void removeTempFiles(String dir) {
+
+    }
+
     public ServiceStorage() {
         makeDirIfNotExist();
+        removeTempFiles(_defaultDir);
     }
 
     public ServiceStorage(String defaultDir) {
         _defaultDir = ofNullable(defaultDir).map(String::trim).filter(s -> !s.isEmpty()).orElse(_defaultDir);
         makeDirIfNotExist();
+        removeTempFiles(_defaultDir);
     }
 
     private void makeDirIfNotExist() {
@@ -74,7 +80,7 @@ public class ServiceStorage implements Service {
         System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
 
         FileEntry fileEntry = getFileEntry(key);
-        File file = fileEntry.getFileIfExist();
+        File file = fileEntry.getFile();
 
         if (file == null) throw new FileNotFoundException();
 

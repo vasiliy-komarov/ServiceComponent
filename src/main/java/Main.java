@@ -36,10 +36,10 @@ public class Main {
 //
 //        t1.start();
 //        t2.start();
-        t3.start();
-        t4.start();
+//        t3.start();
+//        t4.start();
 //        t5.start();
-        t6.start();
+//        t6.start();
 //        t7.start();
 //        t8.start();
 //        t9.start();
@@ -49,9 +49,9 @@ public class Main {
         String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
         try {
             service.put("testFile", hello.getBytes());
-            byte[] testFiles = service.get("testFile");
-            String s = new String(testFiles, "UTF-8");
-            System.out.println("s = " + s);
+//            byte[] testFiles = service.get("testFile");
+//            String s = new String(testFiles, "UTF-8");
+//            System.out.println("s = " + s);
         } catch (Exception e) {
             e.printStackTrace();
         }
