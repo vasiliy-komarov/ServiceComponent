@@ -44,13 +44,8 @@ public class Main {
 //        t8.start();
 //        t9.start();
 //
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                System.out.println("hello, i'm = " + Thread.currentThread().getName());
-//            }
-//        }).start();
 
+//https://habrahabr.ru/post/277669/
         String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
         try {
             service.put("testFile", hello.getBytes());

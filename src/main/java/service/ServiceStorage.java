@@ -74,7 +74,7 @@ public class ServiceStorage implements Service {
         System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
 
         FileEntry fileEntry = getFileEntry(key);
-        File file = fileEntry.getFile();
+        File file = fileEntry.getFileIfExist();
 
         if (file == null) throw new FileNotFoundException();
 

@@ -17,7 +17,7 @@ public class FileEntry {
     private String _key;
     private String _dir;
     private String _fileName;
-    private File _file;
+//    private File _file;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
@@ -32,7 +32,7 @@ public class FileEntry {
                 .orElseThrow(WrongDirNameException::new);
         _fileName = DigestUtils.md5Hex(key);
 
-        _file = getFileIfExist();
+//        _file = getFileIfExist();
     }
 
     public String getKey() {
@@ -43,18 +43,18 @@ public class FileEntry {
         return _fileName;
     }
 
-    public File getFile() {
-        readLock.lock();
-
-        try {
-            return  _file;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            readLock.unlock();
-        }
-        return null;
-    }
+//    public File getFile() {
+//        readLock.lock();
+//
+//        try {
+//            return  _file;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            readLock.unlock();
+//        }
+//        return null;
+//    }
 
     private void write(File file, byte[] value) {
         AtomicReference<File> atom = new AtomicReference<>(file);
@@ -81,8 +81,9 @@ public class FileEntry {
     public void writeToFile(byte[] value) throws Exception {
         writeLock.lock();
 
+        File file = getFileIfExist();
         try {
-            System.out.println("WRITE LOCK WRITE FILE, f = " + _file
+            System.out.println("WRITE LOCK WRITE FILE, f = " + file
                     + ", thread name = " + Thread.currentThread().getName()
             );
             String filePath = _dir + _fileName + ".swap";
@@ -91,14 +92,12 @@ public class FileEntry {
             boolean isCreated = newFile.createNewFile();
 
             if (isCreated) {
-                if (_file != null) {
-                    System.out.println("old file path = " + _file.getAbsolutePath());
-                    boolean isDeleted = _file.delete();
-                    _file = null;
+                if (file != null) {
+                    System.out.println("old file path = " + file.getAbsolutePath());
+                    boolean isDeleted = file.delete();
                     System.out.println("old file was deleted = " + isDeleted);
                 }
                 write(newFile, value);
-                _file = newFile;
                 System.out.println("new file path = " + newFile.getAbsolutePath());
             }
         } catch (Exception e) {
@@ -112,8 +111,6 @@ public class FileEntry {
 
     public File getFileIfExist() {
         readLock.lock();
-
-        if (_file != null) return _file;
 
         String threadName = Thread.currentThread().getName();
         System.out.println("getFileIfExist READLOCK FileEntry, thread name = " + threadName
@@ -153,19 +150,19 @@ public class FileEntry {
         writeLock.lock();
 
         try {
-//            File existFile = null;
-//            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
-//
-//            if (listFiles != null) {
-//                for (File file : listFiles) {
-//                    if (file != null) {
-//                        existFile = file;
-//                        break;
-//                    }
-//                }
-//            }
+            File existFile = null;
+            File[] listFiles = new File(_dir).listFiles((f, name) -> Objects.equals(_fileName, name));
 
-            return Optional.ofNullable(_file).map(File::delete).orElse(false);
+            if (listFiles != null) {
+                for (File file : listFiles) {
+                    if (file != null) {
+                        existFile = file;
+                        break;
+                    }
+                }
+            }
+
+            return Optional.ofNullable(existFile).map(File::delete).orElse(false);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
