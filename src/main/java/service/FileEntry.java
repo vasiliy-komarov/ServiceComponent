@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -68,25 +69,25 @@ public class FileEntry {
                 out.write(value);
                 System.out.println("WRITE SUCCESS!");
 
-                String newName = file.getName().replace(".swap", ".new");
+                String newName = _dir + _fileName + ".new";
                 System.out.println("newName = " + newName);
 
-                File newFileName = new File(newName);
+                System.out.println();
 
-                Path move = Files.move(file.toPath(), newFileName.toPath());
+                Path move = Files.move(file.toPath(), new File(newName).toPath(), StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("move = " + move);
 
 //                boolean isRenamed = file.renameTo(newFileName);
 //                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
             } catch (IOException e) {
                 e.printStackTrace();
+                file.delete();
             }
             return current;
         });
     }
 
     public void writeToFile(byte[] value) throws Exception {
-
         writeLock.lock();
         try {
             String filePath = _dir + _fileName + ".swap";
@@ -98,13 +99,14 @@ public class FileEntry {
                 System.out.println("old file was deleted = " + isDeleted);
             }
             System.out.println("WRITE LOCK WRITE FILE, f = " + file + ", thread name = " + Thread.currentThread().getName());
+//            File tempFile = File.createTempFile("", ".swap", new File()_dir);
             File newFile = new File(filePath);
-//            boolean isCreated = newFile.createNewFile();
+            boolean isCreated = newFile.createNewFile();
 
-//            if (isCreated) {
+            if (isCreated) {
                 write(newFile, value);
                 System.out.println("new file path = " + newFile.getAbsolutePath());
-//            }
+            }
         } catch (Exception e) {
             throw e;
         } finally {
@@ -116,7 +118,6 @@ public class FileEntry {
 
     public File getFile() {
         readLock.lock();
-
         try {
             String threadName = Thread.currentThread().getName();
             System.out.println("getFile READLOCK FileEntry, thread name = " + threadName
