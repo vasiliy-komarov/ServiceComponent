@@ -48,7 +48,14 @@ public class Main {
 //https://habrahabr.ru/post/277669/
         String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
         try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ServiceStorage st = new ServiceStorage();
+                }
+            }).start();
             service.put("testFile", hello.getBytes());
+            service.put("testFile1", hello.getBytes());
 //            byte[] testFiles = service.get("testFile");
 //            String s = new String(testFiles, "UTF-8");
 //            System.out.println("s = " + s);

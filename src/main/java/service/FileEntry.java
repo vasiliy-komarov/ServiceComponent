@@ -19,7 +19,8 @@ public class FileEntry {
 
     private String _key;
     private String _dir;
-    private String _fileName;
+    private int _fileName;
+//    private String _fileName;
 //    private File _file;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
@@ -33,7 +34,8 @@ public class FileEntry {
                 .filter(d -> !d.isEmpty())
                 .map(d -> d += d.endsWith("/") ? "" : "/")
                 .orElseThrow(WrongDirNameException::new);
-        _fileName = DigestUtils.md5Hex(key);
+//        _fileName = DigestUtils.md5Hex(key);
+        _fileName = key.hashCode();
 
 //        _file = getFileIfExist();
     }
@@ -42,7 +44,7 @@ public class FileEntry {
         return _key;
     }
 
-    public String getFileName() {
+    public int getFileName() {
         return _fileName;
     }
 

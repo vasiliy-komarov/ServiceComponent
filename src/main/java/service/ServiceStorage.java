@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Optional.ofNullable;
 
@@ -21,26 +22,40 @@ public class ServiceStorage implements Service {
 //    private static Map<String, FileEntry> keysMap = Collections.synchronizedMap(new HashMap<>()); // key = md5 code
     private String _defaultDir = "../storage/";
 
-    private void removeTempFiles(String dir) {
+    private void removeTempFiles() {
+        System.out.println("REMOVE TEMP FILES");
+        File[] files = new File(_defaultDir).listFiles((f, n) -> n.endsWith(".swap"));
+
+        System.out.println("THREAD NAME = " + Thread.currentThread().getName());
+
+        AtomicReference<File[]> atom = new AtomicReference<>(files);
+        atom.updateAndGet(tempFiles -> {
+            System.out.println("UPDATE AND GET, thread = " + Thread.currentThread().getName());
+            for (File file : tempFiles) {
+                file.delete();
+            }
+            return tempFiles;
+        });
 
     }
 
     public ServiceStorage() {
         makeDirIfNotExist();
-        removeTempFiles(_defaultDir);
+        removeTempFiles();
     }
 
     public ServiceStorage(String defaultDir) {
         _defaultDir = ofNullable(defaultDir).map(String::trim).filter(s -> !s.isEmpty()).orElse(_defaultDir);
         makeDirIfNotExist();
-        removeTempFiles(_defaultDir);
+        removeTempFiles();
     }
 
     private void makeDirIfNotExist() {
         File file = new File(_defaultDir);
 
         if (!file.isDirectory()) {
-            file.mkdir();
+            boolean isCreated = file.mkdir();
+            System.out.println("DIR = " + _defaultDir + " was created");
         }
     }
 
@@ -57,7 +72,7 @@ public class ServiceStorage implements Service {
 
     private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
         String assertedKey = assertKey(key);
-        String encodedKey = getEncodedKey(assertedKey);
+        String encodedKey = ((Integer)assertedKey.hashCode()).toString();//getEncodedKey(assertedKey);
 
         System.out.println("getFileEntry thread name = " + Thread.currentThread().getName());
         if (keysMap.containsKey(encodedKey)) {
