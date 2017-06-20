@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class TestThreads extends Thread {
-    String name = "";
+    String _name = "";
     ServiceStorage service;
     TestThreads(String file, ServiceStorage serviceStorage) {
-        name = file;
+        _name = file;
         service = serviceStorage;
     }
 
@@ -23,9 +23,11 @@ public class TestThreads extends Thread {
 //        }
 
 //        File fileIfExist = entry.getFileIfExist();
+        String name = Thread.currentThread().getName();
         try {
 //            long start = System.currentTimeMillis();
-            byte[] bytes = service.get(name);
+            byte[] bytes = service.get(_name);
+            System.out.println("file content = " + new String(bytes, "UTF-8"));
 //            long stop = System.currentTimeMillis();
 //            System.out.println("thread name = " + Thread.currentThread().getId());
 //            System.out.println("duration = " + (stop - start));
@@ -34,10 +36,12 @@ public class TestThreads extends Thread {
         } catch (WrongDirNameException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            System.out.println("ERROR, FNFE, thread = " + Thread.currentThread().getName());
+            System.out.println("ERROR, FNFE, thread = " + name);
 //            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("error, thread name = " + name + ", cuz = " + e.getMessage());
         }
 
 

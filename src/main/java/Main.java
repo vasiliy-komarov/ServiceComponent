@@ -27,7 +27,7 @@ public class Main {
 //        Thread t1 = new TestThreads("testFile1", service);
 //        Thread t2 = new TestThreads("testFile1", service);
         Thread t3 = new TestThreads("testFile", service);
-        Thread t4 = new TestThreads("testFile", service);
+        Thread t4 = new TestThreads("testFile1", service);
 //        Thread t5 = new TestThreads("testFile1", service);
         Thread t6 = new TestThreads("testFile", service);
 //        Thread t7 = new TestThreads("testFile1", service);
@@ -36,32 +36,26 @@ public class Main {
 //
 //        t1.start();
 //        t2.start();
-//        t3.start();
-//        t4.start();
+        try {
+            String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
+            service.put("testFile", hello.getBytes());
+            service.put("testFile1", hello.getBytes());
+            byte[] testFiles = service.get("testFile");
+            String s = new String(testFiles, "UTF-8");
+            System.out.println("s = " + s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        t3.start();
+        t4.start();
 //        t5.start();
-//        t6.start();
+        t6.start();
 //        t7.start();
 //        t8.start();
 //        t9.start();
 //
 
 //https://habrahabr.ru/post/277669/
-        String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
-        try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ServiceStorage st = new ServiceStorage();
-                }
-            }).start();
-            service.put("testFile", hello.getBytes());
-            service.put("testFile1", hello.getBytes());
-//            byte[] testFiles = service.get("testFile");
-//            String s = new String(testFiles, "UTF-8");
-//            System.out.println("s = " + s);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 

@@ -19,7 +19,7 @@ public class FileEntry {
 
     private String _key;
     private String _dir;
-    private int _fileName;
+    private Integer _fileName;
 //    private String _fileName;
 //    private File _file;
 
@@ -36,6 +36,7 @@ public class FileEntry {
                 .orElseThrow(WrongDirNameException::new);
 //        _fileName = DigestUtils.md5Hex(key);
         _fileName = key.hashCode();
+        System.out.println("CONSTRUCTOR FILE ENTRY, hashCode = " + _fileName);
 
 //        _file = getFileIfExist();
     }
@@ -44,22 +45,9 @@ public class FileEntry {
         return _key;
     }
 
-    public int getFileName() {
-        return _fileName;
+    public String getFileName() {
+        return _fileName.toString();
     }
-
-//    public File getFile() {
-//        readLock.lock();
-//
-//        try {
-//            return  _file;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            readLock.unlock();
-//        }
-//        return null;
-//    }
 
     private void write(File file, byte[] value) {
         AtomicReference<File> atom = new AtomicReference<>(file);
@@ -71,9 +59,6 @@ public class FileEntry {
                 out.write(value);
                 System.out.println("WRITE SUCCESS!");
 
-
-//                boolean isRenamed = file.renameTo(newFileName);
-//                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
             } catch (IOException e) {
                 e.printStackTrace();
                 file.delete();
@@ -85,9 +70,10 @@ public class FileEntry {
 
                 try {
                     Files.move(file.toPath(), new File(newName).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (java.lang.Exception exception) {
+                } catch (Exception e) {
                     file.delete();
-                    exception.printStackTrace();
+                    System.out.println("Error while rename file = " + file.getName());
+                    e.printStackTrace();
                 }
             }
 
@@ -144,10 +130,18 @@ public class FileEntry {
     private File getFileIfExist() {
         try {
             File existFile = null;
-            String tempName = _fileName + ".swap";
+//            String tempName = _fileName + ".swap";
             File[] listFiles = new File(_dir).listFiles((f, name) -> {
-                System.out.println("fileName = " + name + ", _file = " + _fileName);
-                return Objects.equals(_fileName, name) || Objects.equals(tempName, name);
+                System.out.println("fileName = " + name + ", _file = " + _fileName + ", thread name = " +Thread.currentThread().getName());
+
+                Integer hashCode = null;
+                try {
+                    hashCode = Integer.parseInt(name);
+                } catch (NumberFormatException e) {
+                    System.out.println("Can't parse int name, message = " + e.getMessage());
+                }
+                return Objects.equals(_fileName, hashCode);
+//                return Objects.equals(_fileName, name) || Objects.equals(tempName, name);
             });
 
             if (listFiles != null) {
@@ -163,12 +157,6 @@ public class FileEntry {
             e.printStackTrace();
         }
         return null;
-    }
-
-    private boolean isExistFile() {
-        String[] listFiles = new File(_dir).list((f, name) -> Objects.equals(_fileName, name));
-
-        return listFiles != null && listFiles.length > 0;
     }
 
     public boolean removeFileIfExist() {

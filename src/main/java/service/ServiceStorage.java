@@ -14,7 +14,7 @@ import static java.util.Optional.ofNullable;
 
 public class ServiceStorage implements Service {
 
-    private static Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
+    private static Map<Integer, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
     private String _defaultDir = "../storage/";
 
     private void removeTempFiles() {
@@ -71,7 +71,7 @@ public class ServiceStorage implements Service {
 
     private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
         String assertedKey = assertKey(key);
-        String encodedKey = ((Integer)assertedKey.hashCode()).toString();//getEncodedKey(assertedKey);
+        Integer encodedKey = assertedKey.hashCode();//getEncodedKey(assertedKey);
 
         System.out.println("getFileEntry thread name = " + Thread.currentThread().getName());
         if (keysMap.containsKey(encodedKey)) {
@@ -83,7 +83,7 @@ public class ServiceStorage implements Service {
 
             System.out.println("getFileEntry create file entry and put in map");
 
-            keysMap.keySet().forEach(s -> System.out.println("keys in map = " + s));
+//            keysMap.keySet().forEach(s -> System.out.println("keys in map = " + s));
             keysMap.put(encodedKey, fileEntry);
 
             return fileEntry;
@@ -96,6 +96,7 @@ public class ServiceStorage implements Service {
         FileEntry fileEntry = getFileEntry(key);
         File file = fileEntry.getFile();
 
+        System.out.println("ServiceStorage, get file = " + file);
         if (file == null) throw new FileNotFoundException();
 
         System.out.println("Service storage, bytes, name = " + Thread.currentThread().getName());
