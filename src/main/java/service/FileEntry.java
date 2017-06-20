@@ -69,13 +69,6 @@ public class FileEntry {
                 out.write(value);
                 System.out.println("WRITE SUCCESS!");
 
-                String newName = _dir + _fileName + ".new";
-                System.out.println("newName = " + newName);
-
-                System.out.println();
-
-                Path move = Files.move(file.toPath(), new File(newName).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("move = " + move);
 
 //                boolean isRenamed = file.renameTo(newFileName);
 //                System.out.println("RENAME FILE, file = " + file.getAbsolutePath() + ", isRenamed = " + isRenamed);
@@ -83,6 +76,19 @@ public class FileEntry {
                 e.printStackTrace();
                 file.delete();
             }
+
+            if (file.exists()) {
+                String newName = _dir + _fileName;
+                System.out.println("newName = " + newName);
+
+                try {
+                    Files.move(file.toPath(), new File(newName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (java.lang.Exception exception) {
+                    file.delete();
+                    exception.printStackTrace();
+                }
+            }
+
             return current;
         });
     }
