@@ -14,28 +14,28 @@ import static java.util.Optional.ofNullable;
 
 public class ServiceStorage implements Service {
 
-//    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-//    private final Lock readLock = readWriteLock.readLock();
-//    private final Lock writeLock = readWriteLock.writeLock();
-
     private static Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
-//    private static Map<String, FileEntry> keysMap = Collections.synchronizedMap(new HashMap<>()); // key = md5 code
     private String _defaultDir = "../storage/";
 
     private void removeTempFiles() {
         System.out.println("REMOVE TEMP FILES");
-        File[] files = new File(_defaultDir).listFiles((f, n) -> n.endsWith(".swap"));
+        try {
+            File[] files = new File(_defaultDir).listFiles((f, n) -> n.endsWith(".swap"));
 
-        System.out.println("THREAD NAME = " + Thread.currentThread().getName());
+            System.out.println("THREAD NAME = " + Thread.currentThread().getName());
 
-        AtomicReference<File[]> atom = new AtomicReference<>(files);
-        atom.updateAndGet(tempFiles -> {
-            System.out.println("UPDATE AND GET, thread = " + Thread.currentThread().getName());
-            for (File file : tempFiles) {
-                file.delete();
-            }
-            return tempFiles;
-        });
+            AtomicReference<File[]> atom = new AtomicReference<>(files);
+            atom.updateAndGet(tempFiles -> {
+                System.out.println("UPDATE AND GET, thread = " + Thread.currentThread().getName());
+                for (File file : tempFiles) {
+                    file.delete();
+                }
+                return tempFiles;
+            });
+        } catch (Exception e) {
+            System.out.println("Error while try to delete temp files");
+            e.printStackTrace();
+        }
 
     }
 
@@ -54,8 +54,7 @@ public class ServiceStorage implements Service {
         File file = new File(_defaultDir);
 
         if (!file.isDirectory()) {
-            boolean isCreated = file.mkdir();
-            System.out.println("DIR = " + _defaultDir + " was created");
+            System.out.println("DIR = " + _defaultDir + " was created = " + file.mkdir());
         }
     }
 
