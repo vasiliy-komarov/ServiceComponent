@@ -32,7 +32,7 @@ public class FileEntry {
         _dir = Optional.ofNullable(dir)
                 .map(String::trim)
                 .filter(d -> !d.isEmpty())
-                .map(d -> d += d.endsWith("/") ? "" : "/")
+//                .map(d -> d += d.endsWith("/") || d.endsWith("\\") ? "" : "/")
                 .orElseThrow(WrongDirNameException::new);
 //        _fileName = DigestUtils.md5Hex(key);
         _fileName = key.hashCode();
