@@ -37,9 +37,9 @@ public class Main {
 //        t1.start();
 //        t2.start();
         try {
-            String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
-            service.put("testFile", hello.getBytes());
-            service.put("testFile1", hello.getBytes());
+//            String hello = "hellogdsafdsjfhsfjkhsdfkjshfkjs123456789056657";
+//            service.put("testFile", hello.getBytes());
+//            service.put("testFile1", hello.getBytes());
             byte[] testFiles = service.get("testFile");
             String s = new String(testFiles, "UTF-8");
             System.out.println("s = " + s);

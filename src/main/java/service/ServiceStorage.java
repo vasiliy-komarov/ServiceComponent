@@ -1,36 +1,46 @@
 package service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.Optional.ofNullable;
 
 public class ServiceStorage implements Service {
 
     private static Map<String, FileEntry> keysMap = new ConcurrentHashMap<>(); // key = md5 code
-    private String _defaultDir = "../storage/";
-    private String storageKeysPath = _defaultDir + "keys";
 
-    {
-        makeDirIfNotExist();
-        removeTempFiles();
-        makeKeysFile();
-        fillKeysMap();
+    private static final String DEFAULT_DIR = "../storage/";
+    private static final String PATH_TO_FILE_KEYS = "../storage/keys";
+
+    public static final Long FILES_MAX_COUNT = 20000L;
+
+    public ServiceStorage() {
+        synchronized (this) {
+            makeDirIfNotExist();
+            removeTempFiles();
+            makeKeysFile();
+            fillKeysMap();
+        }
     }
 
     private void makeKeysFile() {
-        File file = new File(storageKeysPath);
+        File file = new File(PATH_TO_FILE_KEYS);
+
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -41,60 +51,43 @@ public class ServiceStorage implements Service {
     }
 
     private void fillKeysMap() {
-        synchronized (keysMap) {
-            try {
-                Set<String> setKeys = Files.lines(Paths.get(storageKeysPath))
-                        .filter(s -> !s.isEmpty())
-                        .collect(Collectors.toSet());
+        try {
+            Set<String> setKeys = Files.lines(Paths.get(PATH_TO_FILE_KEYS))
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toSet());
 
-                for (String key : setKeys) {
-                    FileEntry entry = new FileEntry(key, _defaultDir);
-                    keysMap.put(key, entry);
-                }
-
-
-            } catch (IOException | WrongKeyException | WrongDirNameException e) {
-                e.printStackTrace();
+            for (String key : setKeys) {
+                FileEntry entry = new FileEntry(key, DEFAULT_DIR);
+                keysMap.put(key, entry);
             }
+        } catch (IOException | WrongKeyException | WrongDirNameException e) {
+            e.printStackTrace();
         }
     }
 
-//    public ServiceStorage() {
-//    }
-
-//    public ServiceStorage(String defaultDir) {
-//        _defaultDir = ofNullable(defaultDir).map(String::trim).filter(s -> !s.isEmpty()).orElse(_defaultDir);
-//        makeDirIfNotExist();
-//        removeTempFiles();
-//    }
-
     private void removeTempFiles() {
-        System.out.println("REMOVE TEMP FILES");
         try {
-            File[] files = new File(_defaultDir).listFiles((f, n) -> n.endsWith(".swap"));
+            File[] files = new File(DEFAULT_DIR).listFiles((f, n) -> n.endsWith(".swap"));
 
-            System.out.println("THREAD NAME = " + Thread.currentThread().getName());
 
             AtomicReference<File[]> atom = new AtomicReference<>(files);
             atom.updateAndGet(tempFiles -> {
-                System.out.println("UPDATE AND GET, thread = " + Thread.currentThread().getName());
                 for (File file : tempFiles) {
                     file.delete();
                 }
                 return tempFiles;
             });
         } catch (Exception e) {
-            System.out.println("Error while try to delete temp files");
             e.printStackTrace();
         }
 
     }
 
     private void makeDirIfNotExist() {
-        File file = new File(_defaultDir);
+        File file = new File(DEFAULT_DIR);
 
         if (!file.isDirectory()) {
-            System.out.println("DIR = " + _defaultDir + " was created = " + file.mkdir());
+            file.mkdir();
         }
     }
 
@@ -111,19 +104,13 @@ public class ServiceStorage implements Service {
 
     private FileEntry getFileEntry(String key) throws WrongKeyException, WrongDirNameException {
         String assertedKey = assertKey(key);
-//        Integer encodedKey = assertedKey.hashCode();//getEncodedKey(assertedKey);
 
-        System.out.println("getFileEntry thread name = " + Thread.currentThread().getName());
         if (keysMap.containsKey(assertedKey)) {
-            System.out.println("getFileEntry contains key = " + key);
 
             return keysMap.get(assertedKey);
         } else {
-            FileEntry fileEntry = new FileEntry(assertedKey, _defaultDir);
+            FileEntry fileEntry = new FileEntry(assertedKey, DEFAULT_DIR);
 
-            System.out.println("getFileEntry create file entry and put in map");
-
-//            keysMap.keySet().forEach(s -> System.out.println("keys in map = " + s));
             keysMap.put(assertedKey, fileEntry);
 
             addNewKey(assertedKey);
@@ -134,8 +121,9 @@ public class ServiceStorage implements Service {
 
     private void addNewKey(String assertedKey) {
         try {
-            File keys = new File(storageKeysPath);
+            File keys = new File(PATH_TO_FILE_KEYS);
             AtomicReference<File> atom = new AtomicReference<>(keys);
+
             boolean isKeyExist = Files.lines(keys.toPath()).anyMatch(s -> s.equals(assertedKey));
 
             if (!isKeyExist) {
@@ -155,34 +143,31 @@ public class ServiceStorage implements Service {
     }
 
     public byte[] get(String key) throws WrongKeyException, WrongDirNameException, FileNotFoundException, IOException {
-        System.out.println("Service storage, try to get file, thread = " + Thread.currentThread().getName());
-
         FileEntry fileEntry = getFileEntry(key);
         File file = fileEntry.getFile();
 
-        System.out.println("ServiceStorage, get file = " + file);
         if (file == null) throw new FileNotFoundException();
 
-        System.out.println("Service storage, bytes, name = " + Thread.currentThread().getName());
         byte[] fileBytes = Files.readAllBytes(file.toPath());
 
         return fileBytes;
     }
 
-    public void put(String key, byte[] data) throws WrongKeyException, Exception {
+    public void put(String key, byte[] data) throws Exception {
         FileEntry fileEntry = getFileEntry(key);
 
         fileEntry.writeToFile(data);
     }
 
-    public boolean remove(String key) throws WrongKeyException, Exception {
+    public boolean remove(String key) throws Exception {
         FileEntry fileEntry = getFileEntry(key);
 
         return fileEntry.removeFileIfExist();
     }
 
-    public Map<String, byte[]> getKeyValue() {
+    public Map<String, byte[]> entrySet() {
         Map<String, byte[]> map = new HashMap<>();
+
 
         // find all file names and keys
 
