@@ -165,11 +165,21 @@ public class ServiceStorage implements Service {
         return fileEntry.removeFileIfExist();
     }
 
-    public Map<String, byte[]> entrySet() {
+    public Map<String, byte[]> getKeyValue() {
         Map<String, byte[]> map = new HashMap<>();
 
+        for (Map.Entry<String, FileEntry> entry : keysMap.entrySet()) {
+            FileEntry fileEntry = entry.getValue();
 
-        // find all file names and keys
+            try {
+                File file = fileEntry.getFile();
+                byte[] bytes = Files.readAllBytes(file.toPath());
+
+                map.put(entry.getKey(), bytes);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         return map;
     }
