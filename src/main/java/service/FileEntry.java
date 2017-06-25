@@ -43,21 +43,6 @@ public class FileEntry {
         return _fileName.toString();
     }
 
-    private void writeKey() {
-        ObjectMapper mapper = JsonMapper.getMapper();
-        ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("path", _dir + _fileName);
-        objectNode.put("key", _key);
-        boolean existKey = ServiceStorage.isExistKey(_key);
-
-        if (!existKey) {
-
-        }
-
-//        JsonNode keys = mapper.readTree(new File("keys"));
-
-    }
-
     private void write(File file, byte[] value) {
         AtomicReference<File> atom = new AtomicReference<>(file);
 
@@ -69,7 +54,6 @@ public class FileEntry {
 
                 String newName = _dir + _fileName;
 
-                writeKey();
                 Files.move(file.toPath(), new File(newName).toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -87,9 +71,9 @@ public class FileEntry {
 
             File file = getFileIfExist();
             if (file != null) {
-                boolean isDeleted = file.delete();
+                file.delete();
             }
-//            File tempFile = File.createTempFile("", ".swap", new File()_dir);
+
             File newFile = new File(filePath);
             boolean isCreated = newFile.createNewFile();
 
